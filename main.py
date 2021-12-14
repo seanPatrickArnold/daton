@@ -17,6 +17,8 @@ print(os.listdir(os.getcwd()))
 
 #print(np.sin(10))
 
+print(os.getcwd())
+
 df = pd.read_csv(os.path.join(os.getcwd(), 'testData.csv'), index_col=0)
 
 df.insert(2, 'attribute3', [0,1,0,1])
