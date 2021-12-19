@@ -72,11 +72,8 @@ def updateAnalysis():
   df.insert(3, 'attribute4', ['a','a','b','b'])
   df.insert(4, 'attribute5', ['a','b','a','b'])
 
-  print(df)
 
   df.to_excel('analyzedData.xlsx')
-  df = df[df['attribute1'] > 1]
-  print(df.groupby('attribute3').mean())
 
 #while True:
 #  thread = threading.Thread(target=updateAnalysis, args=[])
@@ -96,3 +93,28 @@ for file1 in file_list:
 #     df = pd.read_excel('analyzedData.xlsx')
 #     print(df.header())
 
+
+  analysisFoundBool = False
+  
+  for file1 in file_list:
+    if file1['title'] == 'analyzedData.xlsx' and fileFoundBool == True and analysisFoundBool != True:
+      analysisFoundBool = True
+      file6 = drive.CreateFile({'id': file1['id']})
+      file6.GetContentFile(file1['title'])
+      df = pd.read_excel(file1['title'], index_col=0)
+      df.insert(8, 'attribute9', ['a','a','a','b'])
+      df.to_excel('analyzedData.xlsx')
+      file1 = drive.CreateFile({'id': file1['id']})
+      file1.SetContentFile(os.path.join(os.getcwd(), 'analyzedData.xlsx'))
+      file1.Upload({'convert': True})
+    elif file1['title'] == 'analyzedData.xlsx' and fileFoundBool == True and analysisFoundBool == True:
+      originalTitle = file1['title']
+      file1['title'] = originalTitle.split('.')[0] + 'Copy.' + originalTitle.split('.')[1]
+      update=drive.auth.service.files().update(fileId=file1['id'],body=file1).execute()
+      print('changed filename')
+
+  if not analysisFoundBool:
+    file1 = drive.CreateFile({'title': 'analyzedData.xlsx'})
+    file1.SetContentFile(os.path.join(os.getcwd(), 'analyzedDataStatic.xlsx'))
+    file1.Upload()
+    print('uploaded title: %s, id: %s' % (file1['title'], file1['id']))
